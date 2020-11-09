@@ -1,0 +1,25 @@
+{
+  "name": "city_explorer_api",
+  "version": "1.0.0",
+  "description": "**Author**: Micheal Falk &amp; JP Jones",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MikeyFalk/city_explorer_api.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MikeyFalk/city_explorer_api/issues"
+  },
+  "homepage": "https://github.com/MikeyFalk/city_explorer_api#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "env": "0.0.2",
+    "express": "^4.17.1"
+  }
+}
