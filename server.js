@@ -1,5 +1,7 @@
 'use strict';
 
+let weatherForecasts = [];
+
 const express = require('express');
 const cors = require('cors');
 const env = require('env');
@@ -11,6 +13,35 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 
 app.get('/location', handleLocation);
+app.get('/weather', handleWeather);
+
+function handleWeather(req, res) {
+  try {
+    console.log('in handle weather');
+    let weatherData = require('./data/weather.json');
+    let cityWeather = req.query.city;
+
+    weatherData.data.forEach(element => {
+      new WeatherLocation(cityWeather, element);
+      console.log('element: ', element);
+
+    });
+
+    res.send(weatherForecasts);
+  }
+  catch (error) {
+    console.error(error);
+  }
+}
+
+function WeatherLocation(city, weatherData) {
+  this.search_query = city;
+  this.time = weatherData.valid_date;
+  this.forecast = weatherData.weather;
+  console.log('time and forecast', this.time, this.forecast);
+  weatherForecasts.push(this);
+}
+
 function handleLocation(req, res) {
   try {
     let geoData = require('./data/location.json');
@@ -35,6 +66,6 @@ app.use('*', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`server is working on ${PORT}`);
+  console.log(`Server is working on ${PORT}`);
 });
 
