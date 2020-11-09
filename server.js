@@ -37,7 +37,7 @@ function handleWeather(req, res) {
 function WeatherLocation(city, weatherData) {
   this.search_query = city;
   this.time = weatherData.valid_date;
-  this.forecast = weatherData.weather;
+  this.forecast = weatherData.weather.description;
   console.log('time and forecast', this.time, this.forecast);
   weatherForecasts.push(this);
 }
