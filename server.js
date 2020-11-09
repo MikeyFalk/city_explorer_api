@@ -1,5 +1,7 @@
 'use strict';
 
+let weatherForecasts = [];
+
 const express = require('express');
 const cors = require('cors');
 const env = require('env');
@@ -18,8 +20,14 @@ function handleWeather(req, res) {
     console.log('in handle weather');
     let weatherData = require('./data/weather.json');
     let cityWeather = req.query.city;
-    let weatherObj = new WeatherLocation(cityWeather, weatherData);
-    res.send(weatherObj);
+
+    weatherData.data.forEach(element => {
+      new WeatherLocation(cityWeather, element);
+      console.log('element: ', element);
+
+    });
+
+    res.send(weatherForecasts);
   }
   catch (error) {
     console.error(error);
@@ -28,9 +36,10 @@ function handleWeather(req, res) {
 
 function WeatherLocation(city, weatherData) {
   this.search_query = city;
-  this.time = weatherData.data[0].valid_date;
-  this.forecast = weatherData.data[0].weather;
+  this.time = weatherData.valid_date;
+  this.forecast = weatherData.weather;
   console.log('time and forecast', this.time, this.forecast);
+  weatherForecasts.push(this);
 }
 
 function handleLocation(req, res) {
