@@ -59,6 +59,10 @@ function Location(city, geoData) {
   this.latitude = geoData[0].lat;
   this.longitude = geoData[0].lon;
 }
+//500 error
+app.use('', (req, res) => {
+  res.status(500).send('Sorry, something went wrong');
+})
 
 //404 Handler
 app.use('*', (req, res) => {
