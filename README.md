@@ -26,4 +26,33 @@ People would like to know more about cities and what they have to offer, and wou
 
 ## Credits and Collaborations
 <!-- Give credit (and a link) to other people or resources that helped you build this application. -->
+
+## Daily Updates
+
+**Number and name of feature**: 1 - Repository Setup
+**Estimate of time needed to complete**: 1 hoour
+**Start time**: 1:30pm
+**Finish time**: 2:18pm
+**Actual time needed to complete**: 48 minutes
+
+**Number and name of feature**: 2 - Locations
+**Estimate of time needed to complete**: 2.5 hrs
+**Start time**: 2:18pm
+**Finish time**: 3:30pm
+**Actual time needed to complete**: 1hr 12min
+
+**Number and name of feature**: 3 - Weather
+**Estimate of time needed to complete**: 2 hrs
+**Start time**:3:30pm
+**Finish time**:4:30pm
+**Actual time needed to complete**: 1 hr
+
+**Number and name of feature**: 4 - Errors
+**Estimate of time needed to complete**: 2 hrs
+**Start time**:4:30pm
+**Finish time**: 6:12pm
+**Actual time needed to complete**: NOT COMPLETE
+
+
+
 -->
