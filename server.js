@@ -60,9 +60,10 @@ function Location(city, geoData) {
   this.longitude = geoData[0].lon;
 }
 //500 error
-app.use(error, (req, res) => {
+app.use((error, req, res, next) => {
+  console.error('this is our error', error);
   res.status(500).send('Sorry, something went wrong');
-})
+});
 
 //404 Handler
 app.use('*', (req, res) => {
