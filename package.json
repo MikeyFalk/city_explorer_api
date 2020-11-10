@@ -19,8 +19,10 @@
   "homepage": "https://github.com/MikeyFalk/city_explorer_api#readme",
   "dependencies": {
     "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
     "env": "0.0.2",
     "express": "^4.17.1",
-    "nodemon": "^2.0.6"
+    "nodemon": "^2.0.6",
+    "superagent": "^6.1.0"
   }
 }
