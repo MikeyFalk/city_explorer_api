@@ -29,6 +29,8 @@ People would like to know more about cities and what they have to offer, and wou
 
 ## Daily Updates
 
+### Lab 06
+
 **Number and name of feature**: 1 - Repository Setup
 **Estimate of time needed to complete**: 1 hoour
 **Start time**: 1:30pm
@@ -51,8 +53,32 @@ People would like to know more about cities and what they have to offer, and wou
 **Estimate of time needed to complete**: 2 hrs
 **Start time**:4:30pm
 **Finish time**: 6:12pm
-**Actual time needed to complete**: NOT COMPLETE
+**Actual time needed to complete**: 2.5 hrs
 
+### Lab 07
 
+**Number and name of feature**: 1 - Data Formatting
+**Estimate of time needed to complete**: 1 hour
+**Start time**:1:30pm
+**Finish time**: 1:40pm
+**Actual time needed to complete**: 10 minutes
+
+**Number and name of feature**: 2 - Locations
+**Estimate of time needed to complete**: 1 hour
+**Start time**:1:30pm
+**Finish time**: 2:30pm
+**Actual time needed to complete**: 1 hour
+
+**Number and name of feature**: 3 - Weather
+**Estimate of time needed to complete**: 1 hour
+**Start time**:1:30pm
+**Finish time**: pm
+**Actual time needed to complete**: 0:00pm
+
+**Number and name of feature**: 4 - STRETCH
+**Estimate of time needed to complete**: 1 hour
+**Start time**:1:30pm
+**Finish time**: pm
+**Actual time needed to complete**: 0:00pm
 
 -->
