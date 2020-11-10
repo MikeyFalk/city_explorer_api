@@ -21,7 +21,7 @@ function handleWeather(req, res) {
     let weatherData = require('./data/weather.json');
     let cityWeather = req.query.city;
 
-    weatherData.data.forEach(element => {
+    weatherData.data.map(element => {
       new WeatherLocation(cityWeather, element);
       console.log('element: ', element);
 
