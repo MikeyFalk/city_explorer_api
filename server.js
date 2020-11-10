@@ -4,11 +4,15 @@ let weatherForecasts = [];
 
 const express = require('express');
 const cors = require('cors');
-const env = require('env');
+const dotenv = require('dotenv');
+const superagent = require('superagent');
+dotenv.config();
+
 //const { response } = require('express');
 const app = express();
-
 const PORT = process.env.PORT || 3000;
+const GEOCODE_API_KEY = process.env.GEOCODE_API_KEY;
+console.log(GEOCODE_API_KEY);
 
 app.use(cors());
 
@@ -21,7 +25,7 @@ function handleWeather(req, res) {
     let weatherData = require('./data/weather.json');
     let cityWeather = req.query.city;
 
-  
+
     if (cityWeather === '') { res.send({ status: 500, responseText: 'Sorry, something went wrong' }); }
     weatherData.data.map(element => {
       new WeatherLocation(cityWeather, element);
@@ -38,12 +42,18 @@ function handleWeather(req, res) {
 
 function handleLocation(req, res) {
   try {
-    let geoData = require('./data/location.json');
     let city = req.query.city;
+    console.log(GEOCODE_API_KEY);
+    let url = `https://us1.locationiq.com/v1/search.php?key=${GEOCODE_API_KEY}&q=${city}&format=json&limit=1`;
     // Check to see if it's an empty string.  Throw 500 error if empty. throw new Error(500);
     if (city === '') { res.send({ status: 500, responseText: 'Sorry, something went wrong' }); }
-    let locationData = new Location(city, geoData);
-    res.send(locationData);
+    superagent.get(url)
+      .then(data => {
+        console.log(data.body[0]);
+        let locationData = new Location(city, data.body[0]);
+        res.send(locationData);
+      })
+      .catch(console.log('unable to access requested data'));
   }
   catch (error) {
     console.error('error', error);
@@ -59,9 +69,10 @@ function WeatherLocation(city, weatherData) {
 }
 function Location(city, geoData) {
   this.search_query = city;
-  this.formatted_query = geoData[0].display_name;
-  this.latitude = geoData[0].lat;
-  this.longitude = geoData[0].lon;
+  this.formatted_query = geoData.display_name;
+  this.latitude = geoData.lat;
+  this.longitude = geoData.lon;
+  console.log('geoData:', this);
 }
 
 function emptyString() {
