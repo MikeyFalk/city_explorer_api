@@ -20,8 +20,10 @@ function handleWeather(req, res) {
     console.log('in handle weather');
     let weatherData = require('./data/weather.json');
     let cityWeather = req.query.city;
+
+  
     if (cityWeather === '') { res.send({ status: 500, responseText: 'Sorry, something went wrong' }); }
-    weatherData.data.forEach(element => {
+    weatherData.data.map(element => {
       new WeatherLocation(cityWeather, element);
       console.log('element: ', element);
 
