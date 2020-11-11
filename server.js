@@ -2,6 +2,7 @@
 
 let weatherForecasts = [];
 let cityCoord = [];
+let trailArray = [];
 
 const express = require('express');
 const cors = require('cors');
@@ -14,11 +15,13 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const GEOCODE_API_KEY = process.env.GEOCODE_API_KEY;
 const WEATHER_API_KEY = process.env.WEATHER_API_KEY;
+const TRAIL_API_KEY = process.env.TRAIL_API_KEY;
 
 app.use(cors());
 
 app.get('/location', handleLocation);
 app.get('/weather', handleWeather);
+app.get('/trails', handleTrails);
 
 function Location(city, geoData) {
   this.search_query = city;
@@ -37,20 +40,34 @@ function WeatherLocation(weatherData) {
   weatherForecasts.push(this);
 }
 
+function Trails(trailData) {
+  this.name = trailData.name;
+  this.location = trailData.location;
+  this.length = trailData.length;
+  this.stars = trailData.stars;
+  this.stars_votes = trailData.stars_votes;
+  this.summary = trailData.summary;
+  this.trail_url = trailData.trail_url;
+  this.conditions = trailData.conditions;
+  this.condition_date = trailData.conditions_date;
+  this.condition_time = trailData.condition_time;
+  trailArray.push(this);
+
+}
 function handleLocation(req, res) {
   try {
     let city = req.query.city;
     console.log(GEOCODE_API_KEY);
     let url = `https://us1.locationiq.com/v1/search.php?key=${GEOCODE_API_KEY}&q=${city}&format=json&limit=1`;
     // Check to see if it's an empty string.  Throw 500 error if empty. throw new Error(500);
-    if (city === '') { res.send({ status: 500, responseText: 'Sorry, something went wrong' }); }
+    // if (city === '') { res.send({ status: 500, responseText: 'Sorry, something went wrong' }); }
     superagent.get(url)
       .then(data => {
         console.log(data.body[0]);
         let locationData = new Location(city, data.body[0]);
         res.send(locationData);
-      })
-      .catch(console.log('unable to access requested data'));
+      });
+    // .catch(console.log('unable to access requested data'));
   }
   catch (error) {
     console.error('error', error);
@@ -76,6 +93,25 @@ function handleWeather(req, res) {
     console.error(error);
   }
 }
+
+function handleTrails(req, res) {
+  try {
+    let trailsUrl = `https://www.hikingproject.com/data/get-trails?lat=${cityCoord[0]}&lon=${cityCoord[1]}&maxDistance=30&key=${TRAIL_API_KEY}`;
+    superagent.get(trailsUrl)
+      .then(trailsData => {
+        console.log(trailsData.body.trails);
+        trailsData.body.trails.map(element => {
+          new Trails(element);
+        });
+        res.send(trailArray);
+      });
+
+  }
+  catch (error) {
+    console.error('trails error', error);
+  }
+}
+
 
 // 500 error
 app.use((error, req, res, next) => {
