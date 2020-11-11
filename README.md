@@ -72,13 +72,13 @@ People would like to know more about cities and what they have to offer, and wou
 **Number and name of feature**: 3 - Weather
 **Estimate of time needed to complete**: 1 hour
 **Start time**:1:30pm
-**Finish time**: pm
-**Actual time needed to complete**: 0:00pm
+**Finish time**: 5:00pm
+**Actual time needed to complete**: 3.5 hours0
 
-**Number and name of feature**: 4 - STRETCH
-**Estimate of time needed to complete**: 1 hour
-**Start time**:1:30pm
-**Finish time**: pm
-**Actual time needed to complete**: 0:00pm
+**Number and name of feature**: 4 - Trails
+**Estimate of time needed to complete**: 2 hour
+**Start time**: 5:17pm
+**Finish time**: 6:07pm
+**Actual time needed to complete**: 50 minutes
 
 -->
