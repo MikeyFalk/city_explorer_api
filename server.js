@@ -1,6 +1,7 @@
 'use strict';
 
 let weatherForecasts = [];
+let cityCoord = [];
 
 const express = require('express');
 const cors = require('cors');
@@ -12,32 +13,28 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 const GEOCODE_API_KEY = process.env.GEOCODE_API_KEY;
-console.log(GEOCODE_API_KEY);
+const WEATHER_API_KEY = process.env.WEATHER_API_KEY;
 
 app.use(cors());
 
 app.get('/location', handleLocation);
 app.get('/weather', handleWeather);
 
-function handleWeather(req, res) {
-  try {
-    console.log('in handle weather');
-    let weatherData = require('./data/weather.json');
-    let cityWeather = req.query.city;
+function Location(city, geoData) {
+  this.search_query = city;
+  this.formatted_query = geoData.display_name;
+  this.latitude = geoData.lat;
+  this.longitude = geoData.lon;
+  cityCoord.push(this.latitude, this.longitude);
+  console.log('geoData:', this);
+}
 
-
-    if (cityWeather === '') { res.send({ status: 500, responseText: 'Sorry, something went wrong' }); }
-    weatherData.data.map(element => {
-      new WeatherLocation(cityWeather, element);
-      console.log('element: ', element);
-
-    });
-
-    res.send(weatherForecasts);
-  }
-  catch (error) {
-    console.error(error);
-  }
+function WeatherLocation(weatherData) {
+  //this.search_query = city;
+  this.time = weatherData.valid_date;
+  this.forecast = weatherData.weather.description;
+  // console.log('time and forecast', this.time, this.forecast);
+  weatherForecasts.push(this);
 }
 
 function handleLocation(req, res) {
@@ -59,30 +56,27 @@ function handleLocation(req, res) {
     console.error('error', error);
   }
 }
-function WeatherLocation(city, weatherData) {
-  this.search_query = city;
-  this.time = weatherData.valid_date;
-  this.forecast = weatherData.weather.description;
-  console.log('time and forecast', this.time, this.forecast);
-  weatherForecasts.push(this);
 
-}
-function Location(city, geoData) {
-  this.search_query = city;
-  this.formatted_query = geoData.display_name;
-  this.latitude = geoData.lat;
-  this.longitude = geoData.lon;
-  console.log('geoData:', this);
+function handleWeather(req, res) {
+  try {
+    //console.log('in handle weather', locationData.latitude, locationData.longitude);
+    console.log('city coord:', cityCoord);
+    let weatherUrl = `https://api.weatherbit.io/v2.0/forecast/daily?lat=${cityCoord[0]}&lon=${cityCoord[1]}&key=${WEATHER_API_KEY}`;
+    console.log(weatherUrl);
+    superagent.get(weatherUrl)
+      .then(weatherData => {
+        weatherData.body.data.map(element => {
+          new WeatherLocation(element);
+        });
+        console.log(weatherForecasts.length);
+        res.send(weatherForecasts);
+      });
+  }
+  catch (error) {
+    console.error(error);
+  }
 }
 
-function emptyString() {
-  console.log('In emptyString');
-  app.use((req, res) => {
-    console.log('reqresanonymous');
-    res.status(500).send('No Bueno');
-  });
-
-}
 // 500 error
 app.use((error, req, res, next) => {
   console.log('ERROR!!!', error.status);
