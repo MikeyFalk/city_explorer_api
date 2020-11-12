@@ -11,7 +11,6 @@ const superagent = require('superagent');
 const pg = require('pg');
 dotenv.config();
 
-const client = new pg.Client(process.env.DATABASE_URL);
 
 //const { response } = require('express');
 const app = express();
@@ -20,6 +19,7 @@ const GEOCODE_API_KEY = process.env.GEOCODE_API_KEY;
 const WEATHER_API_KEY = process.env.WEATHER_API_KEY;
 const TRAIL_API_KEY = process.env.TRAIL_API_KEY;
 const DATABASE_URL = process.env.DATABASE_URL;
+const client = new pg.Client(DATABASE_URL);
 
 app.use(cors());
 
