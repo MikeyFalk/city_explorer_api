@@ -43,35 +43,23 @@ app.get('/add', (req, res) => {
     })
     .catch(err => {
       res.status(500).send(err);
-    })
+    });
 });
 
 ///function that will look at:
 
-function checkDatabase(req, res) {
-  console.log('checkDatabase');
-  let locationQuery = `SELECT DISTINCT * FROM locations WHERE  search_query = '${req.query.city}'`;
-  console.log('locationQuery!:', locationQuery);
-  client.query(locationQuery)
-    .then(data => {
-      res.json(data.rows);
-    });
-  //ObJ =
-  handleLocation(req, res);
-}
 
-//  Check database for the data.
-
-//  !databases => run handleLocation.
 
 
 function Location(city, geoData) {
+  console.log('GEODATA: ', geoData);
   this.search_query = city;
   this.formatted_query = geoData.display_name;
   this.latitude = geoData.lat;
   this.longitude = geoData.lon;
   cityCoord.push(this.latitude, this.longitude);
 
+  console.log('THIS!!!: ', this);
 }
 
 function WeatherLocation(weatherData) {
@@ -100,13 +88,14 @@ function handleLocation(req, res) {
   try {
     let city = req.query.city;
 
-    //INSERT FUNcTION HERE
-
     let url = `https://us1.locationiq.com/v1/search.php?key=${GEOCODE_API_KEY}&q=${city}&format=json&limit=1`;
     // Check to see if it's an empty string.  Throw 500 error if empty. throw new Error(500);
     // if (city === '') { res.send({ status: 500, responseText: 'Sorry, something went wrong' }); }
     superagent.get(url)
       .then(data => {
+        console.log(data.body[0]);
+
+        addToSql(city, data.body[0]);
 
         let locationData = new Location(city, data.body[0]);
         res.send(locationData);
@@ -156,7 +145,43 @@ function handleTrails(req, res) {
   }
 }
 
+function checkDatabase(req, res) {
 
+  let locationQuery = `SELECT DISTINCT * FROM locations WHERE  search_query = '${req.query.city}'`;
+  console.log('locationQuery!:', locationQuery);
+  client.query(locationQuery).then(data => {
+
+    let city = data.rows[0].search_query;
+    console.log('city', city, '\t data.rows[0]', data.rows[0])
+    let geoData = {
+      display_name: data.rows[0].formatted_query,
+      lat: data.rows[0].latitude,
+      lon: data.rows[0].longitude
+    };
+    let locationData = new Location(city, geoData);
+    res.send(locationData);
+  })
+    .catch(err => {
+      console.log('Shit\'s Wack');
+      handleLocation(req, res);
+    });
+}
+
+function addToSql(city, dataObj) {
+
+
+  let SQL = `INSERT INTO locations (search_query, formatted_query, latitude, longitude) VALUES ($1, $2, $3, $4) RETURNING *`;
+
+  let values = [city, dataObj.display_name, dataObj.lat, dataObj.lon];
+
+  client.query(SQL, values)
+    .then(results => {
+      console.log('location rows:', results.rows);
+    })
+    .catch(err => {
+      console.log('Couldn\'t add to the database!  For some wierd reason', err);
+    });
+}
 // 500 error
 app.use((error, req, res, next) => {
   console.log('ERROR!!!', error.status);
@@ -182,4 +207,3 @@ client.connect()
     });
   })
   .catch(err => console.log(err));
-
