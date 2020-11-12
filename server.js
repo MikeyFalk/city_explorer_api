@@ -30,13 +30,8 @@ app.get('/trails', handleTrails);
 
 app.get('/add', (req, res) => {
 
-  let search_query = req.query.search;
-  let formatted_query = req.query.fquery;
-  let lat = req.query.lat;
-  let long = req.query.long;
   let SQL = 'INSERT INTO locations (search_query, formatted_query, latitude, longitude) VALUES ($1, $2, $3, $4) RETURNING *';
-  let values = [search_query, formatted_query, lat, long];
-  client.query(SQL, values)
+  client.query(SQL, makeQueryString(req))
     .then(results => {
       console.log('location rows:', results.rows);
       res.status(201).json(results.rows);
@@ -46,7 +41,10 @@ app.get('/add', (req, res) => {
     });
 });
 
-///function that will look at:
+function makeQueryString(obj) {
+  let array = [obj.query.search, obj.query.fquery, obj.query.lat, obj.query.long];
+  return (array)
+}
 
 
 
