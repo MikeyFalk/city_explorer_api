@@ -8,7 +8,10 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const superagent = require('superagent');
+const pg = require('pg');
 dotenv.config();
+
+const client = new pg.Client(process.env.DATABASE_URL);
 
 //const { response } = require('express');
 const app = express();
@@ -16,12 +19,32 @@ const PORT = process.env.PORT || 3000;
 const GEOCODE_API_KEY = process.env.GEOCODE_API_KEY;
 const WEATHER_API_KEY = process.env.WEATHER_API_KEY;
 const TRAIL_API_KEY = process.env.TRAIL_API_KEY;
+const DATABASE_URL = process.env.DATABASE_URL;
 
 app.use(cors());
 
 app.get('/location', handleLocation);
 app.get('/weather', handleWeather);
 app.get('/trails', handleTrails);
+
+
+app.get('/add', (req, res) => {
+
+  let search_query = req.query.search;
+  let formatted_query = req.query.fquery;
+  let lat = req.query.lat;
+  let long = req.query.long;
+  let SQL = 'INSERT INTO locations (search_query, formatted_query, latitude, longitude) VALUES ($1, $2, $3, $4) RETURNING *';
+  let values = [search_query, formatted_query, lat, long];
+  client.query(SQL, values)
+    .then(results => {
+      console.log('location rows:', results.rows);
+      res.status(201).json(results.rows);
+    })
+    .catch(err => {
+      res.status(500).send(err);
+    })
+});
 
 function Location(city, geoData) {
   this.search_query = city;
