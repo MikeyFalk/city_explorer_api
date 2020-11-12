@@ -152,7 +152,13 @@ app.use('*', (req, res) => {
   res.status(404).send('Sorry, that does not exist.  Try again.');
 });
 //function that take in the response object through it's response throught it params and sets the 500 status.  log out message.
-app.listen(PORT, () => {
-  console.log(`Server is working on ${PORT}`);
-});
+
+client.connect()
+  .then(() => {
+    console.log('connected hurray');
+    app.listen(PORT, () => {
+      console.log(`Server is working on ${PORT}`);
+    });
+  })
+  .catch(err => console.log(err));
 
