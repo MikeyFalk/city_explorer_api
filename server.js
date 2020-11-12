@@ -30,13 +30,8 @@ app.get('/trails', handleTrails);
 
 app.get('/add', (req, res) => {
 
-  let search_query = req.query.search;
-  let formatted_query = req.query.fquery;
-  let lat = req.query.lat;
-  let long = req.query.long;
   let SQL = 'INSERT INTO locations (search_query, formatted_query, latitude, longitude) VALUES ($1, $2, $3, $4) RETURNING *';
-  let values = [search_query, formatted_query, lat, long];
-  client.query(SQL, values)
+  client.query(SQL, makeQueryString(req))
     .then(results => {
       console.log('location rows:', results.rows);
       res.status(201).json(results.rows);
@@ -46,27 +41,25 @@ app.get('/add', (req, res) => {
     });
 });
 
-///function that will look at:
+function makeQueryString(obj) {
+  let array = [obj.query.search, obj.query.fquery, obj.query.lat, obj.query.long];
+  return (array)
+}
 
 
 
 
 function Location(city, geoData) {
-  console.log('GEODATA: ', geoData);
   this.search_query = city;
   this.formatted_query = geoData.display_name;
   this.latitude = geoData.lat;
   this.longitude = geoData.lon;
   cityCoord.push(this.latitude, this.longitude);
-
-  console.log('THIS!!!: ', this);
 }
 
 function WeatherLocation(weatherData) {
-  //this.search_query = city;
   this.time = weatherData.valid_date;
   this.forecast = weatherData.weather.description;
-  // console.log('time and forecast', this.time, this.forecast);
   weatherForecasts.push(this);
 }
 
@@ -82,25 +75,28 @@ function Trails(trailData) {
   this.condition_date = trailData.conditions_date;
   this.condition_time = trailData.condition_time;
   trailArray.push(this);
-
 }
 function handleLocation(req, res) {
   try {
     let city = req.query.city;
-
     let url = `https://us1.locationiq.com/v1/search.php?key=${GEOCODE_API_KEY}&q=${city}&format=json&limit=1`;
     // Check to see if it's an empty string.  Throw 500 error if empty. throw new Error(500);
     // if (city === '') { res.send({ status: 500, responseText: 'Sorry, something went wrong' }); }
     superagent.get(url)
       .then(data => {
-        console.log(data.body[0]);
-
         addToSql(city, data.body[0]);
-
+        return data;
+      })
+      .then(data => {
         let locationData = new Location(city, data.body[0]);
+        return locationData;
+      })
+      .then(locationData => {
         res.send(locationData);
+      })
+      .catch((error) => {
+        console.log('Unable to process Location information:', error)
       });
-    // .catch(console.log('unable to access requested data'));
   }
   catch (error) {
     console.error('error', error);
@@ -117,8 +113,7 @@ function handleWeather(req, res) {
       .then(weatherData => {
         weatherData.body.data.map(element => {
           new WeatherLocation(element);
-        });
-
+        })
         res.send(weatherForecasts);
       });
   }
@@ -132,13 +127,11 @@ function handleTrails(req, res) {
     let trailsUrl = `https://www.hikingproject.com/data/get-trails?lat=${cityCoord[0]}&lon=${cityCoord[1]}&maxDistance=30&key=${TRAIL_API_KEY}`;
     superagent.get(trailsUrl)
       .then(trailsData => {
-
         trailsData.body.trails.map(element => {
           new Trails(element);
         });
         res.send(trailArray);
       });
-
   }
   catch (error) {
     console.error('trails error', error);
@@ -179,7 +172,7 @@ function addToSql(city, dataObj) {
       console.log('location rows:', results.rows);
     })
     .catch(err => {
-      console.log('Couldn\'t add to the database!  For some wierd reason', err);
+      console.log('Couldn\'t add to the database!  For some weird reason:', err);
     });
 }
 // 500 error
@@ -206,4 +199,4 @@ client.connect()
       console.log(`Server is working on ${PORT}`);
     });
   })
-  .catch(err => console.log(err));
+  .catch(err => console.log('Unable to connect, guess we are antisocial:', err));
