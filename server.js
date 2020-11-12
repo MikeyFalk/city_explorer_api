@@ -23,7 +23,7 @@ const client = new pg.Client(DATABASE_URL);
 
 app.use(cors());
 
-app.get('/location', handleLocation);
+app.get('/location', checkDatabase);
 app.get('/weather', handleWeather);
 app.get('/trails', handleTrails);
 
@@ -46,13 +46,32 @@ app.get('/add', (req, res) => {
     })
 });
 
+///function that will look at:
+
+function checkDatabase(req, res) {
+  console.log('checkDatabase');
+  let locationQuery = `SELECT DISTINCT * FROM locations WHERE  search_query = '${req.query.city}'`;
+  console.log('locationQuery!:', locationQuery);
+  client.query(locationQuery)
+    .then(data => {
+      res.json(data.rows);
+    });
+  //ObJ =
+  handleLocation(req, res);
+}
+
+//  Check database for the data.
+
+//  !databases => run handleLocation.
+
+
 function Location(city, geoData) {
   this.search_query = city;
   this.formatted_query = geoData.display_name;
   this.latitude = geoData.lat;
   this.longitude = geoData.lon;
   cityCoord.push(this.latitude, this.longitude);
-  console.log('geoData:', this);
+
 }
 
 function WeatherLocation(weatherData) {
@@ -80,13 +99,15 @@ function Trails(trailData) {
 function handleLocation(req, res) {
   try {
     let city = req.query.city;
-    console.log(GEOCODE_API_KEY);
+
+    //INSERT FUNcTION HERE
+
     let url = `https://us1.locationiq.com/v1/search.php?key=${GEOCODE_API_KEY}&q=${city}&format=json&limit=1`;
     // Check to see if it's an empty string.  Throw 500 error if empty. throw new Error(500);
     // if (city === '') { res.send({ status: 500, responseText: 'Sorry, something went wrong' }); }
     superagent.get(url)
       .then(data => {
-        console.log(data.body[0]);
+
         let locationData = new Location(city, data.body[0]);
         res.send(locationData);
       });
@@ -100,15 +121,15 @@ function handleLocation(req, res) {
 function handleWeather(req, res) {
   try {
     //console.log('in handle weather', locationData.latitude, locationData.longitude);
-    console.log('city coord:', cityCoord);
+
     let weatherUrl = `https://api.weatherbit.io/v2.0/forecast/daily?lat=${cityCoord[0]}&lon=${cityCoord[1]}&key=${WEATHER_API_KEY}`;
-    console.log(weatherUrl);
+
     superagent.get(weatherUrl)
       .then(weatherData => {
         weatherData.body.data.map(element => {
           new WeatherLocation(element);
         });
-        console.log(weatherForecasts.length);
+
         res.send(weatherForecasts);
       });
   }
@@ -122,7 +143,7 @@ function handleTrails(req, res) {
     let trailsUrl = `https://www.hikingproject.com/data/get-trails?lat=${cityCoord[0]}&lon=${cityCoord[1]}&maxDistance=30&key=${TRAIL_API_KEY}`;
     superagent.get(trailsUrl)
       .then(trailsData => {
-        console.log(trailsData.body.trails);
+
         trailsData.body.trails.map(element => {
           new Trails(element);
         });
