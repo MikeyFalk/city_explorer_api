@@ -5,6 +5,7 @@ let cityCoord = [];
 let trailArray = [];
 let currentCity = '';
 let movieObject = [];
+let restObject = [];
 
 const express = require('express');
 const cors = require('cors');
@@ -21,6 +22,7 @@ const GEOCODE_API_KEY = process.env.GEOCODE_API_KEY;
 const WEATHER_API_KEY = process.env.WEATHER_API_KEY;
 const TRAIL_API_KEY = process.env.TRAIL_API_KEY;
 const MOVIE_API_KEY = process.env.MOVIE_API_KEY;
+const YELP_API_KEY = process.env.YELP_API_KEY;
 const DATABASE_URL = process.env.DATABASE_URL;
 const client = new pg.Client(DATABASE_URL);
 
@@ -30,6 +32,8 @@ app.get('/location', checkDatabase);
 app.get('/weather', handleWeather);
 app.get('/trails', handleTrails);
 app.get('/movies', handleMovies);
+app.get('/yelp', handleRestaurants);
+
 
 
 app.get('/add', (req, res) => {
@@ -49,9 +53,6 @@ function makeQueryString(obj) {
   let array = [obj.query.search, obj.query.fquery, obj.query.lat, obj.query.long];
   return (array)
 }
-
-
-
 
 function Location(city, geoData) {
   this.search_query = city;
@@ -91,19 +92,50 @@ function Movies(movieData) {
   movieObject.push(this);
 }
 
+function Restaurants(restData) {
+  this.name = restData.name;
+  this.image_url = restData.image_url;
+  this.price = restData.price;
+  this.rating = restData.rating;
+  this.url = restData.url;
+  restObject.push(this);
+}
+
+
+function handleRestaurants(req, res) {
+  try {
+    let restUrl = `https://api.yelp.com/v3/businesses/search?latitude=${cityCoord[0]}&longitude=${cityCoord[1]}&radius=20`;
+    console.log('this is the yelp url:', YELP_API_KEY);
+    superagent.get(restUrl)
+      .set('Authorization', `Bearer ${YELP_API_KEY}`)
+
+      .then(restData => {
+        console.log('this is rest data:', restData.text);
+        // restData.body.results.map(element => {
+        //   new Restaurants(element);
+        // })
+
+      })
+      .then(() => {
+        res.send(restObject);
+      });
+  }
+  catch (error) {
+    console.error('restaurant data is not fully baked', error);
+  }
+}
+
+
+
 function handleMovies(req, res) {
   try {
     let movieUrl = `https://api.themoviedb.org/3/search/movie?api_key=${MOVIE_API_KEY}&query=${currentCity}`;
     superagent.get(movieUrl)
       .then(movieData => {
-
         movieData.body.results.map(element => {
-
           new Movies(element);
-
-          console.log('This is movie data:', movieData.body.
-
-            results[0]);
+          //console.log('This is movie data:', movieData.body.
+          //results[0]);
         })
       })
       .then(() => {
@@ -113,9 +145,7 @@ function handleMovies(req, res) {
   catch (error) {
     console.error('movie data did not roll:', error);
   }
-
 }
-
 
 function handleLocation(req, res) {
   try {
