@@ -118,7 +118,7 @@ People would like to know more about cities and what they have to offer, and wou
 **Number and name of feature**: 2 - Yelp
 **Estimate of time needed to complete**: 2 hours
 **Start time**: 4:30pm
-**Finish time**: 4:30pm
-**Actual time needed to complete**: 2.5 hours
+**Finish time**: 5:37pm
+**Actual time needed to complete**: 1.5 hours
 
 -->
