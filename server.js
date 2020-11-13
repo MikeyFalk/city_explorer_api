@@ -104,7 +104,7 @@ function Restaurants(restData) {
 
 function handleRestaurants(req, res) {
   try {
-    let restUrl = `https://api.yelp.com/v3/businesses/search?latitude=${cityCoord[0]}&longitude=${cityCoord[1]}&radius=200`;
+    let restUrl = `https://api.yelp.com/v3/businesses/search?latitude=${req.query.latitude}&longitude=${req.query.longitude}&radius=200`;
     console.log('this is the yelp url:', YELP_API_KEY);
     superagent.get(restUrl)
       .set('Authorization', `Bearer ${YELP_API_KEY}`)
