@@ -104,16 +104,15 @@ function Restaurants(restData) {
 
 function handleRestaurants(req, res) {
   try {
-    let restUrl = `https://api.yelp.com/v3/businesses/search?latitude=${cityCoord[0]}&longitude=${cityCoord[1]}&radius=20`;
+    let restUrl = `https://api.yelp.com/v3/businesses/search?latitude=${cityCoord[0]}&longitude=${cityCoord[1]}&radius=200`;
     console.log('this is the yelp url:', YELP_API_KEY);
     superagent.get(restUrl)
       .set('Authorization', `Bearer ${YELP_API_KEY}`)
 
       .then(restData => {
-        console.log('this is rest data:', restData.text);
-        // restData.body.results.map(element => {
-        //   new Restaurants(element);
-        // })
+        restData.body.businesses.map(element => {
+          new Restaurants(element);
+        })
 
       })
       .then(() => {
@@ -134,8 +133,6 @@ function handleMovies(req, res) {
       .then(movieData => {
         movieData.body.results.map(element => {
           new Movies(element);
-          //console.log('This is movie data:', movieData.body.
-          //results[0]);
         })
       })
       .then(() => {
@@ -176,8 +173,6 @@ function handleLocation(req, res) {
 
 function handleWeather(req, res) {
   try {
-    //console.log('in handle weather', locationData.latitude, locationData.longitude);
-
     let weatherUrl = `https://api.weatherbit.io/v2.0/forecast/daily?lat=${cityCoord[0]}&lon=${cityCoord[1]}&key=${WEATHER_API_KEY}`;
 
     superagent.get(weatherUrl)
