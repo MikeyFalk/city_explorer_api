@@ -3,6 +3,8 @@
 let weatherForecasts = [];
 let cityCoord = [];
 let trailArray = [];
+let currentCity = '';
+let movieObject = [];
 
 const express = require('express');
 const cors = require('cors');
@@ -18,6 +20,7 @@ const PORT = process.env.PORT || 3000;
 const GEOCODE_API_KEY = process.env.GEOCODE_API_KEY;
 const WEATHER_API_KEY = process.env.WEATHER_API_KEY;
 const TRAIL_API_KEY = process.env.TRAIL_API_KEY;
+const MOVIE_API_KEY = process.env.MOVIE_API_KEY;
 const DATABASE_URL = process.env.DATABASE_URL;
 const client = new pg.Client(DATABASE_URL);
 
@@ -26,6 +29,7 @@ app.use(cors());
 app.get('/location', checkDatabase);
 app.get('/weather', handleWeather);
 app.get('/trails', handleTrails);
+app.get('/movies', handleMovies);
 
 
 app.get('/add', (req, res) => {
@@ -76,19 +80,56 @@ function Trails(trailData) {
   this.condition_time = trailData.condition_time;
   trailArray.push(this);
 }
+function Movies(movieData) {
+  this.title = movieData.title;
+  this.overview = movieData.overview;
+  this.average_votes = movieData.average_votes;
+  this.total_votes = movieData.total_votes;
+  this.image_url = movieData.image_url;
+  this.popularity = movieData.popularity;
+  this.released_on = movieData.released_on;
+  movieObject.push(this);
+}
+
+function handleMovies(req, res) {
+  try {
+    let movieUrl = `https://api.themoviedb.org/3/search/movie?api_key=${MOVIE_API_KEY}&query=${currentCity}`;
+    superagent.get(movieUrl)
+      .then(movieData => {
+
+        movieData.body.results.map(element => {
+
+          new Movies(element);
+
+          console.log('This is movie data:', movieData.body.
+
+            results[0]);
+        })
+      })
+      .then(() => {
+        res.send(movieObject);
+      });
+  }
+  catch (error) {
+    console.error('movie data did not roll:', error);
+  }
+
+}
+
+
 function handleLocation(req, res) {
   try {
-    let city = req.query.city;
-    let url = `https://us1.locationiq.com/v1/search.php?key=${GEOCODE_API_KEY}&q=${city}&format=json&limit=1`;
+    currentCity = req.query.city;
+    let url = `https://us1.locationiq.com/v1/search.php?key=${GEOCODE_API_KEY}&q=${currentCity}&format=json&limit=1`;
     // Check to see if it's an empty string.  Throw 500 error if empty. throw new Error(500);
     // if (city === '') { res.send({ status: 500, responseText: 'Sorry, something went wrong' }); }
     superagent.get(url)
       .then(data => {
-        addToSql(city, data.body[0]);
+        addToSql(currentCity, data.body[0]);
         return data;
       })
       .then(data => {
-        let locationData = new Location(city, data.body[0]);
+        let locationData = new Location(currentCity, data.body[0]);
         return locationData;
       })
       .then(locationData => {
@@ -139,7 +180,7 @@ function handleTrails(req, res) {
 }
 
 function checkDatabase(req, res) {
-
+  currentCity = req.query.city;
   let locationQuery = `SELECT DISTINCT * FROM locations WHERE  search_query = '${req.query.city}'`;
   console.log('locationQuery!:', locationQuery);
   client.query(locationQuery).then(data => {
